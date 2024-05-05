@@ -1,25 +1,24 @@
 #!/usr/bin/python3
-""" Cleans old files"""
-
+"""
+Deletes out-of-date archives, using the function do_clean
+"""
 from fabric.api import *
-import os
-from datetime import datetime
-import tarfile
 
-env.hosts = ["54.173.155.211", "54.90.14.238"]
+
+env.hosts = ['54.173.155.211', '54.90.14.238']
 env.user = "ubuntu"
 
 
 def do_clean(number=0):
-    """ Removes all but given number of archives"""
+    """Deletes out-of-date archives"""
+
     number = int(number)
-    if number < 2:
-        number = 1
-    number += 1
-    number = str(number)
-    with lcd("versions"):
-        local("ls -1t | grep web_static_.*\.tgz | tail -n +" +
-              number + " | xargs -I {} rm -- {}")
-    with cd("/data/web_static/releases"):
-        run("ls -1t | grep web_static_ | tail -n +" +
-            number + " | xargs -I {} rm -rf -- {}")i
+
+    if number == 0:
+        number = 2
+    else:
+        number += 1
+
+    local('cd versions ; ls -t | tail -n +{} | xargs rm -rf'.format(number))
+    path = '/data/web_static/releases'
+    run('cd {} ; ls -t | tail -n +{} | xargs rm -rf'.format(path, number))
